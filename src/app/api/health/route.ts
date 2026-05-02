@@ -1,12 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { NextResponse } from 'next/server'
 
-type Data = {
-  name: string
-}
-
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  res.status(200).json({ name: 'CSAB College API' })
+export async function GET() {
+  return NextResponse.json({
+    status: "ok",
+    message: "CSAB College API",
+    time: new Date().toISOString(),
+  })
 }
