@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["csab"]
+}
+
+model csab2025 {
+  sno                 Decimal  @id @db.Decimal
+  round               Decimal? @db.Decimal
+  institute           String?
+  academicProgramName String?
+  quota               String?
+  seatType            String?
+  gender              String?
+  openingRank         String?
+  closingRank         String?
+  priority            Decimal? @db.Decimal
+  type                String?
+
+  @@schema("csab")
+}
