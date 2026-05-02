@@ -1,4 +1,8 @@
-import { Context } from "@/app/api/graphql/route";
+import { PrismaClient } from "../../prisma/generated/prisma/client";
+
+type Context = {
+  prisma: PrismaClient;
+};
 
 const resolvers = {
   Query: {
