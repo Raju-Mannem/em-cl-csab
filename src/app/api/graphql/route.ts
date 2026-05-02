@@ -9,10 +9,10 @@ const yoga = createYoga({
   context: () => ({ prisma }),
 });
 
-export async function GET(req: Request) {
-  return yoga.fetch(req);
+export async function GET(request: Request) {
+  return yoga.fetch(request);
 }
 
-export async function POST(req: Request) {
-  return yoga.fetch(req);
+export async function POST(request: Request) {
+  return yoga.fetch(request);
 }
