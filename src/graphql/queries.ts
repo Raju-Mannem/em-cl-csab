@@ -14,6 +14,7 @@ export const GET_CSAB_2025 = gql`
         priority
         rounds
         type
+        new_priority
     }
   }
 `;

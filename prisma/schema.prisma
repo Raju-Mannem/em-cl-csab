@@ -20,6 +20,7 @@ model csab2025 {
   closingRank         String?
   priority            Decimal? @db.Decimal
   type                String?
+  new_priority        Decimal? @db.Decimal
 
   @@schema("csab")
 }

@@ -4,6 +4,7 @@ import { useLazyQuery } from "@apollo/client/react";
 import { GET_CSAB_2025 } from "../graphql/queries";
 import { programOptions } from "../data/programs";
 import { seatOptions } from "../data/seat";
+import { instituteNames } from "../data/instituteNames";
 import { quotaOptions } from "../data/quota";
 import { roundOptions } from "../data/rounds";
 import { genderOptions } from "../data/gender";
@@ -34,11 +35,17 @@ export interface CutoffRow {
   priority: string;
   rounds: Array<number>;
   type: string;
+  new_priority: number;
 }
 
 type ColumnKey = keyof CutoffRow | "sno";
 
 type TableRow = Partial<Record<ColumnKey, string | number>>;
+
+const priorityOptions = [
+  { label: "Old priority", value: "1" },
+  { label: "New priority", value: "2" },
+];
 
 const Cutoff2024 = () => {
   const [minOpeningRank, setMinOpeningRank] = useState("");
@@ -51,6 +58,9 @@ const Cutoff2024 = () => {
   const [selectedRounds, setSelectedRounds] = useState<number[]>([]);
   const [selectedGender, setSelectedGender] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
+  const [selectedInstitutes, setSelectedInstitutes] = useState<string[]>([]);
+  const [selectedPriorityOptions, setSelectedPriorityOptions] =
+    useState<string>("2");
 
   const [stdName, setStdName] = useState<string>("");
   const [stdRank, setStdRank] = useState<string>("");
@@ -107,7 +117,7 @@ const Cutoff2024 = () => {
       // );
 
       const tableData: TableRow[] = result.map((row, index) => {
-        const newRow: TableRow  = {};
+        const newRow: TableRow = {};
 
         selectedColumns.forEach((col) => {
           if (col === "sno") {
@@ -199,6 +209,7 @@ const Cutoff2024 = () => {
     } else {
       const variables = {
         filter: {
+          instituteNames: selectedInstitutes,
           minOpeningRank: Number(minOpeningRank),
           maxclosingRank: Number(maxClosingRank),
           rounds: selectedRounds,
@@ -207,9 +218,10 @@ const Cutoff2024 = () => {
           seatType: selectedSeatType,
           gender: selectedGender,
           type: selectedType,
+          priorityOption: Number(selectedPriorityOptions),
         },
       };
-      console.log(variables);
+      // console.log(variables);
       // console.log("Submitting filter:", variables);
       fetchCutoffs({ variables });
     }
@@ -227,7 +239,9 @@ const Cutoff2024 = () => {
 
   return (
     <section className="flex justify-center items-center flex-col overflow-x-auto py-2 sm:py-4 sm:px-8 text-[6px] sm:text-[12px] font-sans">
-      <span className="w-full my-8 py-2 bg-indigo-500 text-center text-white text-sm">Note: CSAB 2025 opening rank is started from 45</span>
+      <span className="w-full my-8 py-2 bg-indigo-500 text-center text-white text-sm">
+        Note: CSAB 2025 opening rank is started from 45
+      </span>
       <article className="w-full h-full">
         <form
           className="flex justify-start flex-wrap items-start gap-2"
@@ -262,6 +276,113 @@ const Cutoff2024 = () => {
                 min={0}
               />
             </div>
+          </div>
+          <div className="basis-2/12 mt-2 sm:mt-6">
+            <details className="group relative overflow-hidden rounded border border-gray-300 shadow-sm bg-indigo-50">
+              <summary className="flex items-center justify-between gap-2 p-2 sm:p-3 text-gray-700 transition-colors hover:text-gray-900 [&::-webkit-details-marker]:hidden">
+                <span className="font-medium"> Institute </span>
+
+                <span className="transition-transform group-open:-rotate-180">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="size-2 sm:size-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                    />
+                  </svg>
+                </span>
+              </summary>
+
+              <div className="divide-y divide-gray-300 border-t border-gray-300 bg-white">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-gray-700">
+                    {" "}
+                    {selectedInstitutes.length}{" "}
+                  </span>
+
+                  <button
+                    type="button"
+                    className="text-gray-700 underline transition-colors hover:text-gray-900"
+                    onClick={() => {
+                      setSelectedInstitutes([]);
+                    }}
+                  >
+                    Reset
+                  </button>
+                </div>
+
+                <fieldset className="p-3">
+                  <legend className="sr-only">Checkboxes</legend>
+
+                  <div className="flex flex-col items-start gap-3 max-h-24 overflow-y-auto pr-2">
+                    <label
+                      htmlFor="all"
+                      className="inline-flex items-center gap-2 sm:gap-3"
+                    >
+                      <input
+                        type="checkbox"
+                        className="size-2 sm:size-5 rounded border-gray-300 shadow-sm"
+                        checked={
+                          selectedInstitutes.length === instituteNames.length
+                        }
+                        onChange={() => {
+                          if (
+                            selectedInstitutes.length === instituteNames.length
+                          ) {
+                            // Deselect all
+                            setSelectedInstitutes([]);
+                          } else {
+                            // Select all
+                            setSelectedInstitutes(
+                              instituteNames.map((opt) => opt.value),
+                            );
+                          }
+                        }}
+                      />
+
+                      <span className="font-medium text-gray-700"> All </span>
+                    </label>
+
+                    {instituteNames.map((opt) => (
+                      <label
+                        htmlFor="Option"
+                        key={opt.value}
+                        className="inline-flex items-center gap-2 sm:gap-3"
+                      >
+                        <input
+                          type="checkbox"
+                          className="size-2 sm:size-5 rounded border-gray-300 shadow-sm"
+                          value={opt.value}
+                          checked={selectedInstitutes.includes(opt.value)}
+                          onChange={(e) => {
+                            const { value, checked } = e.target;
+                            setSelectedInstitutes((prevState) =>
+                              checked
+                                ? [...prevState, value]
+                                : prevState.filter(
+                                    (institute) => institute !== value,
+                                  ),
+                            );
+                          }}
+                        />
+
+                        <span className="font-medium text-gray-700">
+                          {" "}
+                          {opt.label}{" "}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+            </details>
           </div>
           <div className="basis-2/12 mt-2 sm:mt-6">
             <details className="group relative overflow-hidden rounded border border-gray-300 shadow-sm bg-indigo-50">
@@ -879,6 +1000,22 @@ const Cutoff2024 = () => {
               </div>
             </details>
           </div>
+          <div className="basis-2/12">
+            <label className="block text-gray-700 font-medium mb-1">
+              Priority
+            </label>
+            <select
+              className="w-full px-1 sm:px-3 py-1 sm:py-2 border border-indigo-100 bg-indigo-50 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              value={selectedPriorityOptions}
+              onChange={(e) => setSelectedPriorityOptions(e.target.value)}
+            >
+              {priorityOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="submit"
             className="justify-self-end basis-1/12 sm:ml-4 mt-2 sm:mt-6 bg-indigo-600 text-white font-semibold py-2 px-4 rounded hover:bg-indigo-700 transition"
@@ -1047,7 +1184,10 @@ const Cutoff2024 = () => {
                       Closing Rank
                     </th>
                     <th className="border border-gray-300 text-center py-2 w-xs">
-                      Priority
+                      Old Priority
+                    </th>
+                    <th className="border border-gray-300 text-center py-2 w-xs">
+                      new_priority
                     </th>
                     <th className="border border-gray-300 text-center py-2 w-xs">
                       Rounds
@@ -1061,7 +1201,7 @@ const Cutoff2024 = () => {
                       className={`hover:bg-stone-50 
                           hover:text-blue-500 h-4 ${
                             index % 2 != 0 ? "bg-gray-100" : ""
-                          }`}
+                          } ${row.new_priority>105 && "bg-red-700/40"}`}
                     >
                       <td className="border border-gray-300 py-2 text-center max-w-min">
                         <button
@@ -1111,6 +1251,9 @@ const Cutoff2024 = () => {
                       </td>
                       <td className="border border-gray-300 py-2 text-center max-w-min">
                         {row.priority}
+                      </td>
+                      <td className="border border-gray-300 py-2 text-center max-w-min">
+                        {row.new_priority}
                       </td>
                       <td className="border border-gray-300 py-2 text-center max-w-min">
                         {row.rounds.map((value, index) => (

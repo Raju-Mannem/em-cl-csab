@@ -12,9 +12,11 @@ const typeDefs = `#graphql
         closingRank: String
         priority: Int
         type: String
+        new_priority: Int
     }
 
     input RankFilterInput {
+        instituteNames: [String!]
         minOpeningRank: Int!
         # maxOpeningRank: Int!
         # minclosingRank: Int!
@@ -25,6 +27,7 @@ const typeDefs = `#graphql
         seatType: [String!]!
         gender: [String!]
         type: [String!]
+        priorityOption: Int!
     }
 
     type csab2025Res {
@@ -39,6 +42,7 @@ const typeDefs = `#graphql
         closingRank: String
         priority: Int
         type: String
+        new_priority: Int
   }
     scalar JSON
     

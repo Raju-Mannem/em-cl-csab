@@ -11,10 +11,11 @@ const resolvers = {
       args: { filter: any },
       context: Context
     ) => {
-      const { minOpeningRank, maxclosingRank, rounds, academicProgramName, quota, seatType, gender, type } =
+      const { instituteNames, minOpeningRank, maxclosingRank, rounds, academicProgramName, quota, seatType, gender, type, priorityOption } =
         args.filter;
 
       const whereClause: any = {
+        ...(instituteNames && {institute: {in: instituteNames}} ),
         round: { in: rounds },
         academicProgramName: { in: academicProgramName },
         quota: {in: quota},
@@ -22,14 +23,14 @@ const resolvers = {
         gender: { in: gender },
         type: {in: type}
       };
+      const sortField = priorityOption === 1 ? "priority" : "new_priority";
 // console.log(JSON.stringify(type));
       const rows = await context.prisma.csab2025.findMany({
         where: whereClause,
         orderBy: {
-          priority: "asc",
+          [sortField]: "asc"
         },
       });
-
       // 1. Filter rows by minOpeningRank and maxClosingRank
       const filteredRows = rows.filter((row: any) => {
         const openingRankStr = row.openingRank || "";
@@ -38,7 +39,6 @@ const resolvers = {
         const closingRank = parseInt(closingRankStr.replace('p', ''), 10);
         return openingRank >= minOpeningRank && closingRank <= maxclosingRank;
       });
-
       // 2. Group rows by sno, institute, academicProgramName, quota, seatType, gender, and priority
       const groupedRows = filteredRows.reduce((acc: any, row: any) => {
         const key = `${row.institute}-${row.academicProgramName}-${row.quota}-${row.seatType}-${row.gender}`;
@@ -56,6 +56,7 @@ const resolvers = {
             priority: row.priority,
             rounds: [],
             type: row.type,
+            new_priority: row.new_priority,
           };
         }
 
